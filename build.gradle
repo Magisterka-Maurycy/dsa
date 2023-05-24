@@ -93,7 +93,5 @@ compileTestKotlin {
 sonar {
     properties {
         property("sonar.projectKey","dsa")
-        property("sonar.login", sonarToken )
-        property("sonar.host.url", "http://localhost:9000")
     }
 }
