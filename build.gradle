@@ -24,6 +24,7 @@ dependencies {
     implementation("io.quarkiverse.quarkus-elasticsearch-reactive:quarkus-elasticsearch-reactive:1.0.0")
 
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
+    implementation("io.quarkus:quarkus-awt")
     implementation("io.quarkus:quarkus-oidc")
     implementation("io.quarkus:quarkus-mutiny")
     implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
