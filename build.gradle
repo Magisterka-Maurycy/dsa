@@ -36,20 +36,11 @@ dependencies {
     implementation("io.quarkus:quarkus-grpc")
     implementation("io.quarkus:quarkus-smallrye-openapi")
     implementation("io.quarkus:quarkus-logging-gelf")
-    //FIX to small problem with tika regarding :  Request failed: javax.xml.stream.FactoryConfigurationError: Provider com.ctc.wstx.stax.WstxInputFactory not found
-//    implementation("com.fasterxml.woodstox:woodstox-core:6.5.0")
     implementation("io.quarkus:quarkus-kotlin")
     implementation("io.quarkus:quarkus-jacoco")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.quarkus:quarkus-arc")
 
-    implementation(enforcedPlatform("com.squareup.okhttp3:okhttp-bom:4.10.0")) {
-        because("MinIO requires OkHttp >= 4.8.1")
-    }
-    implementation(enforcedPlatform("com.squareup.okio:okio-bom:3.2.0")) {
-        // https://github.com/square/okhttp/blob/parent-4.10.0/build.gradle#L20
-        because("OkHttp")
-    }
 
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
