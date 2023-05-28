@@ -19,10 +19,13 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
     implementation("org.bouncycastle:bcprov-ext-jdk15on:1.70")
 
+    implementation("io.quarkiverse.minio:quarkus-minio:3.0.2")
+    implementation("io.quarkiverse.tika:quarkus-tika:2.0.1")
+    implementation("io.quarkiverse.quarkus-elasticsearch-reactive:quarkus-elasticsearch-reactive:1.0.0")
+
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
     implementation("io.quarkus:quarkus-oidc")
     implementation("io.quarkus:quarkus-mutiny")
-    implementation("io.quarkiverse.minio:quarkus-minio:3.0.0")
     implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
     implementation("io.quarkus:quarkus-smallrye-fault-tolerance")
     implementation ("io.quarkus:quarkus-micrometer-registry-prometheus")
@@ -35,10 +38,8 @@ dependencies {
     implementation("io.quarkus:quarkus-logging-gelf")
     //FIX to small problem with tika regarding :  Request failed: javax.xml.stream.FactoryConfigurationError: Provider com.ctc.wstx.stax.WstxInputFactory not found
 //    implementation("com.fasterxml.woodstox:woodstox-core:6.5.0")
-    implementation("io.quarkiverse.tika:quarkus-tika:2.0.0")
     implementation("io.quarkus:quarkus-kotlin")
     implementation("io.quarkus:quarkus-jacoco")
-    implementation("io.quarkiverse.quarkus-elasticsearch-reactive:quarkus-elasticsearch-reactive:0.2.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.quarkus:quarkus-arc")
 
