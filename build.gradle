@@ -88,5 +88,6 @@ compileTestKotlin {
 sonar {
     properties {
         property("sonar.projectKey","dsa")
+        property("sonar.coverage.jacoco.xmlReportPaths","build/jacoco-report/jacoco.xml")
     }
 }
