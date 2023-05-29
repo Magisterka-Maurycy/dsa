@@ -1,4 +1,5 @@
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.7
+MAINTAINER maurycy.krzeminski@gmail.com
 
 ######################### Set up environment for POI ##########################
 RUN microdnf update && microdnf install freetype fontconfig && microdnf clean all
