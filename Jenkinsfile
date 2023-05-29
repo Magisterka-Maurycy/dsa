@@ -55,4 +55,21 @@ pipeline {
             }
         }
     }
+    post {
+        success {
+            jacoco(
+                    execPattern: '**/build/*.exec',
+                    classPattern: '**/build/classes/kotlin/main',
+                    sourcePattern: '**/src/main'
+            )
+            publishHTML (target : [allowMissing: false,
+                                   alwaysLinkToLastBuild: true,
+                                   keepAll: true,
+                                   reportDir: 'reports',
+                                   reportFiles: 'dependency-check-report.html',
+                                   reportName: 'OWASP Dependency Check',
+                                   reportTitles: 'OWASP Dependency Check']
+            )
+        }
+    }
 }
