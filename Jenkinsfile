@@ -13,6 +13,23 @@ pipeline {
                 sh './gradlew clean'
             }
         }
+
+        stage('Test'){
+            steps {
+                sh './gradlew test'
+            }
+            post{
+                always{
+                    junit '**/build/test-results/test/TEST*.xml'
+                    jacoco(
+                            execPattern: '**/build/*.exec',
+                            classPattern: '**/build/classes/kotlin/main',
+                            sourcePattern: '**/src/main'
+                    )
+                }
+            }
+        }
+
         stage('Build') {
             environment {
                 QUAY_CREDS = credentials('Quay-Access')
@@ -31,6 +48,18 @@ pipeline {
         stage('Owasp') {
             steps {
                 sh './gradlew dependencyCheckAnalyze'
+            }
+            post {
+                success {
+                    publishHTML (target : [allowMissing: false,
+                                           alwaysLinkToLastBuild: true,
+                                           keepAll: true,
+                                           reportDir: 'build/reports',
+                                           reportFiles: 'dependency-check-report.html',
+                                           reportName: 'OWASP Dependency Check',
+                                           reportTitles: 'OWASP Dependency Check']
+                    )
+                }
             }
         }
         stage('Checkout K8S manifest SCM') {
@@ -53,23 +82,6 @@ pipeline {
                             '''
                         }
             }
-        }
-    }
-    post {
-        success {
-            jacoco(
-                    execPattern: '**/build/*.exec',
-                    classPattern: '**/build/classes/kotlin/main',
-                    sourcePattern: '**/src/main'
-            )
-            publishHTML (target : [allowMissing: false,
-                                   alwaysLinkToLastBuild: true,
-                                   keepAll: true,
-                                   reportDir: 'build/reports',
-                                   reportFiles: 'dependency-check-report.html',
-                                   reportName: 'OWASP Dependency Check',
-                                   reportTitles: 'OWASP Dependency Check']
-            )
         }
     }
 }
