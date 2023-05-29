@@ -65,7 +65,7 @@ pipeline {
             publishHTML (target : [allowMissing: false,
                                    alwaysLinkToLastBuild: true,
                                    keepAll: true,
-                                   reportDir: 'reports',
+                                   reportDir: 'build/reports',
                                    reportFiles: 'dependency-check-report.html',
                                    reportName: 'OWASP Dependency Check',
                                    reportTitles: 'OWASP Dependency Check']
