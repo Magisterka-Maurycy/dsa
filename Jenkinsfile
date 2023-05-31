@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    parameters {
+        booleanParam(name: 'DEPLOY', defaultValue: false, description: 'should changes be deployed')
+    }
+
     stages {
         stage('Set Chmod') {
             steps {
@@ -8,6 +12,7 @@ pipeline {
                 sh 'chmod +x ./gradlew'
             }
         }
+
         stage('Clean') {
             steps {
                 sh './gradlew clean'
@@ -38,6 +43,7 @@ pipeline {
                 sh './gradlew build -Dquarkus.profile=kub -Dquarkus.container-image.username=$QUAY_CREDS_USR -Dquarkus.container-image.password=$QUAY_CREDS_PSW'
             }
         }
+
         stage('SonarQube analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
@@ -45,6 +51,7 @@ pipeline {
                 }
             }
         }
+
         stage('Owasp') {
             steps {
                 sh './gradlew dependencyCheckAnalyze'
@@ -62,13 +69,15 @@ pipeline {
                 }
             }
         }
-        stage('Checkout K8S manifest SCM') {
+
+        stage('Deploy to gitops') {
+            when {
+                expression {
+                    return params.DEPLOY == true
+                }
+            }
             steps {
                 checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'Maurycy_ssh', url: 'git@github.com:Magisterka-Maurycy/GitOps.git']])
-            }
-        }
-        stage('Deploy to gitops') {
-            steps {
                 sshagent(['Maurycy_ssh'])
                         {
                             sh '''
