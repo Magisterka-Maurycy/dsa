@@ -12,5 +12,5 @@ import org.maurycy.framework.dsa.openapi.UploadFormSchema
 @Schema(implementation = UploadFormSchema::class)
 class FormData {
     @RestForm("files")
-    var files: List<FileUpload>? = null
+    var files: List<FileUpload> = emptyList()
 }

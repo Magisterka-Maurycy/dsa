@@ -43,9 +43,7 @@ class StoreService(
     fun storeFiles(aFormData: FormData): String {
         createBucket()
         val files = aFormData.files
-        if (files == null) {
-            throw NoFileSentException()
-        }
+        println(files.size)
         if (files.size > 1) {
             throw TooManyFilesSentException()
         }
