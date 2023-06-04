@@ -75,6 +75,10 @@ allOpen {
     annotation("io.quarkus.test.junit.QuarkusTest")
 }
 
+dependencyCheck {
+    failBuildOnCVSS = 7.0f // fail on high or critical CVE
+}
+
 compileKotlin {
     kotlinOptions.jvmTarget = JavaVersion.VERSION_17
     kotlinOptions.javaParameters = true
