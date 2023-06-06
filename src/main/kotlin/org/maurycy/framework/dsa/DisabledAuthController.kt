@@ -1,5 +1,6 @@
 package org.maurycy.framework.dsa
 
+import io.quarkus.arc.profile.UnlessBuildProfile
 import io.quarkus.security.spi.runtime.AuthorizationController
 import jakarta.annotation.Priority
 
@@ -12,6 +13,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty
 @Alternative
 @Priority(Interceptor.Priority.LIBRARY_AFTER)
 @ApplicationScoped
+// tests have their own mechanism for disabling authorization
+@UnlessBuildProfile("test")
 class DisabledAuthController : AuthorizationController() {
     @ConfigProperty(name = "disable.authorization", defaultValue = "false")
     var disableAuthorization = false
