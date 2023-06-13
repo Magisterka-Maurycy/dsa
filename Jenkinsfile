@@ -3,6 +3,7 @@ pipeline {
 
     parameters {
         booleanParam(name: 'DEPLOY', defaultValue: false, description: 'should changes be deployed')
+        booleanParam(name: 'OWASP', defaultValue: false, description: 'should owasp tests be run')
     }
 
     stages {
@@ -53,11 +54,16 @@ pipeline {
         }
 
         stage('Owasp') {
+            when {
+                expression {
+                    return params.OWASP == true
+                }
+            }
             steps {
                 sh './gradlew dependencyCheckAnalyze'
             }
             post {
-                success {
+                always {
                     publishHTML (target : [allowMissing: false,
                                            alwaysLinkToLastBuild: true,
                                            keepAll: true,
