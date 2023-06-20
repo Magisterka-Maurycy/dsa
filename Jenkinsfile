@@ -4,13 +4,13 @@ pipeline {
     parameters {
         booleanParam(name: 'DEPLOY', defaultValue: false, description: 'should changes be deployed')
         booleanParam(name: 'OWASP', defaultValue: false, description: 'should owasp tests be run')
+        booleanParam(name: 'RELEASE', defaultValue: false, description: 'should new version be release')
     }
 
     stages {
         stage('Set Chmod') {
             steps {
                 sh 'chmod 777 /var/run/docker.sock'
-                sh 'chmod +x ./gradlew'
             }
         }
 
@@ -20,12 +20,12 @@ pipeline {
             }
         }
 
-        stage('Test'){
+        stage('Test') {
             steps {
                 sh './gradlew test'
             }
-            post{
-                always{
+            post {
+                always {
                     junit '**/build/test-results/test/TEST*.xml'
                     jacoco(
                             execPattern: '**/build/*.exec',
@@ -37,6 +37,11 @@ pipeline {
         }
 
         stage('Build') {
+            when {
+                expression {
+                    return params.RELEASE == false
+                }
+            }
             environment {
                 QUAY_CREDS = credentials('Quay-Access')
             }
@@ -44,6 +49,30 @@ pipeline {
                 sh './gradlew build -Dquarkus.profile=kub -Dquarkus.container-image.username=$QUAY_CREDS_USR -Dquarkus.container-image.password=$QUAY_CREDS_PSW'
             }
         }
+        stage('Release') {
+            when {
+                expression {
+                    return params.RELEASE == true
+                }
+            }
+            environment {
+                QUAY_CREDS = credentials('Quay-Access')
+            }
+            steps {
+                sshagent(['Maurycy_ssh'])
+                        {
+                            sh '''
+                        ./gradlew currentVersion
+                        ./gradlew release -Prelease.disableChecks -Prelease.pushTagsOnly
+                        ./gradlew currentVersion 
+                        ./gradlew build -Dquarkus.profile=kub -Dquarkus.container-image.username=$QUAY_CREDS_USR -Dquarkus.container-image.password=$QUAY_CREDS_PSW
+                        ./gradlew publish 
+                        ./gradlew currentVersion 
+                        '''
+                        }
+            }
+        }
+
 
         stage('SonarQube analysis') {
             steps {
@@ -64,13 +93,13 @@ pipeline {
             }
             post {
                 always {
-                    publishHTML (target : [allowMissing: false,
-                                           alwaysLinkToLastBuild: true,
-                                           keepAll: true,
-                                           reportDir: 'build/reports',
-                                           reportFiles: 'dependency-check-report.html',
-                                           reportName: 'OWASP Dependency Check',
-                                           reportTitles: 'OWASP Dependency Check']
+                    publishHTML(target: [allowMissing         : false,
+                                         alwaysLinkToLastBuild: true,
+                                         keepAll              : true,
+                                         reportDir            : 'build/reports',
+                                         reportFiles          : 'dependency-check-report.html',
+                                         reportName           : 'OWASP Dependency Check',
+                                         reportTitles         : 'OWASP Dependency Check']
                     )
                 }
             }

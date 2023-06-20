@@ -6,6 +6,7 @@ plugins {
     id("org.owasp.dependencycheck") version "8.2.1"
     id("jacoco")
     id("io.quarkus")
+    id("pl.allegro.tech.build.axion-release") version "1.15.1"
 }
 
 repositories {
@@ -48,7 +49,7 @@ dependencies {
 }
 
 group = "org.maurycy.framework"
-version = "1.0.0-SNAPSHOT"
+version scmVersion.version
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -95,3 +96,5 @@ sonar {
         property("sonar.coverage.jacoco.xmlReportPaths","build/jacoco-report/jacoco.xml")
     }
 }
+
+currentVersion.doNotTrackState("")
