@@ -43,7 +43,6 @@ class StoreService(
     fun storeFiles(aFormData: FormData): String {
         createBucket()
         val files = aFormData.files
-        println(files.size)
         if (files.size > 1) {
             throw TooManyFilesSentException()
         }
@@ -87,6 +86,7 @@ class StoreService(
                 .build()
         )
         val id = response.bucket() + "-" + response.`object`()
+
         val request = Request(
             "PUT",
             "/minio/_doc/$id"
