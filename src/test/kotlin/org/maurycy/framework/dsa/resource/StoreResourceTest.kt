@@ -55,6 +55,19 @@ class StoreResourceTest {
 
     @Test
     @TestSecurity(user = "testUser", roles = ["admin", "user"])
+    fun uploadNoFile() {
+        val file = "a"
+        RestAssured.given()
+            .multiPart("files", file)
+            .accept(MediaType.APPLICATION_JSON)
+            .`when`().post()
+            .then()
+            .statusCode(406)
+            .body(CoreMatchers.`is`(""))
+    }
+
+    @Test
+    @TestSecurity(user = "testUser", roles = ["admin", "user"])
     fun uploadMultipleFiles() {
         val fileName1 = "test.txt"
         val fileName2 = "test.doc"
@@ -165,6 +178,14 @@ class StoreResourceTest {
     @Test
     @TestSecurity(user = "testUser", roles = ["admin", "user"])
     fun searchForFile() {
-        //TODO: TEST searching capabilities and indexes based on current knowledge indexes created for non .txt files are created in a wrong manner
+        RestAssured.given()
+            .queryParam("search","test")
+            .`when`().get()
+            .then()
+            .statusCode(200)
+            .body(
+                CoreMatchers.containsString("["),
+                CoreMatchers.containsString("]")
+            )
     }
 }
