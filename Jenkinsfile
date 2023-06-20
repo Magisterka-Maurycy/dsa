@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     parameters {
-        booleanParam(name: 'DEPLOY', defaultValue: false, description: 'should changes be deployed')
         booleanParam(name: 'OWASP', defaultValue: false, description: 'should owasp tests be run')
         booleanParam(name: 'RELEASE', defaultValue: false, description: 'should new version be release')
     }
@@ -106,11 +105,6 @@ pipeline {
         }
 
         stage('Deploy to gitops') {
-            when {
-                expression {
-                    return params.DEPLOY == true
-                }
-            }
             steps {
                 checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'Maurycy_ssh', url: 'git@github.com:Magisterka-Maurycy/GitOps.git']])
                 sshagent(['Maurycy_ssh'])
