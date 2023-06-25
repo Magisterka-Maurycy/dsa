@@ -21,6 +21,7 @@ import java.io.IOException
 import java.io.InputStream
 import jakarta.enterprise.context.ApplicationScoped
 import org.apache.http.util.EntityUtils
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.elasticsearch.client.Request
 import org.elasticsearch.client.Response
 import org.elasticsearch.client.ResponseException
@@ -36,9 +37,11 @@ import org.maurycy.framework.dsa.model.StoredContent
 class StoreService(
     private val minio: MinioClient,
     private val elasticSearchClient: RestClient,
-    private val tikaParser: TikaParser
+    private val tikaParser: TikaParser,
+    @ConfigProperty(name = "default.bucket.name", defaultValue = "test")
+    private val bucketName: String
 ) {
-    private val bucketName = "test"
+
 
     fun storeFiles(aFormData: FormData): String {
         createBucket()
