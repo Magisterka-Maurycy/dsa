@@ -14,12 +14,12 @@ import io.quarkus.tika.TikaMetadata
 import io.quarkus.tika.TikaParser
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
+import jakarta.enterprise.context.ApplicationScoped
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
-import jakarta.enterprise.context.ApplicationScoped
 import org.apache.http.util.EntityUtils
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.elasticsearch.client.Request

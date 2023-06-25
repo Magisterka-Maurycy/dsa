@@ -8,6 +8,6 @@ import org.maurycy.framework.dsa.exception.TooManyFilesSentException
 @Provider
 class TooManyFilesSentExceptionMapper : ExceptionMapper<TooManyFilesSentException> {
     override fun toResponse(exception: TooManyFilesSentException): Response {
-        return  Response.notAcceptable(emptyList()).build()
+        return Response.notAcceptable(emptyList()).build()
     }
 }

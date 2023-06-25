@@ -8,6 +8,6 @@ import org.maurycy.framework.dsa.exception.NoFileSentException
 @Provider
 class NoFileSentExceptionMapper : ExceptionMapper<NoFileSentException> {
     override fun toResponse(exception: NoFileSentException): Response {
-        return  Response.notAcceptable(emptyList()).build()
+        return Response.notAcceptable(emptyList()).build()
     }
 }

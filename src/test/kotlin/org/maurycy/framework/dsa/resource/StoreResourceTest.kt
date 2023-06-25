@@ -4,8 +4,8 @@ import io.quarkus.test.common.http.TestHTTPEndpoint
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.security.TestSecurity
 import io.restassured.RestAssured
-import java.io.File
 import jakarta.ws.rs.core.MediaType
+import java.io.File
 import org.hamcrest.CoreMatchers
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
@@ -80,8 +80,8 @@ class StoreResourceTest {
                 ?: fail("File $fileName2 not found in resource directory")
         )
         RestAssured.given()
-            .multiPart("files", file1 )
-            .multiPart("files", file2 )
+            .multiPart("files", file1)
+            .multiPart("files", file2)
             .accept(MediaType.APPLICATION_JSON)
             .`when`().post()
             .then()
@@ -179,7 +179,7 @@ class StoreResourceTest {
     @TestSecurity(user = "testUser", roles = ["admin", "user"])
     fun searchForFile() {
         RestAssured.given()
-            .queryParam("search","test")
+            .queryParam("search", "test")
             .`when`().get()
             .then()
             .statusCode(200)
