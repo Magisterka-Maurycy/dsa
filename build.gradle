@@ -21,9 +21,10 @@ dependencies {
     implementation("org.bouncycastle:bcprov-ext-jdk15on:1.70")
 
     implementation("io.quarkiverse.minio:quarkus-minio:3.0.2")
-    implementation("io.quarkiverse.tika:quarkus-tika:2.0.1")
+    implementation("org.apache.camel.quarkus:camel-quarkus-tika")
     implementation("io.quarkiverse.quarkus-elasticsearch-reactive:quarkus-elasticsearch-reactive:1.0.0")
 
+    implementation(enforcedPlatform("${quarkusPlatformGroupId}:quarkus-camel-bom:${quarkusPlatformVersion}"))
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
     implementation("io.quarkus:quarkus-awt")
     implementation("io.quarkus:quarkus-oidc")
@@ -35,14 +36,11 @@ dependencies {
     implementation("io.quarkus:quarkus-openshift")
     implementation("io.quarkus:quarkus-kubernetes")
     implementation("io.quarkus:quarkus-container-image-jib")
-    implementation("io.quarkus:quarkus-grpc")
     implementation("io.quarkus:quarkus-smallrye-openapi")
     implementation("io.quarkus:quarkus-logging-gelf")
     implementation("io.quarkus:quarkus-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.quarkus:quarkus-arc")
-    //FIX to small problem with tika regarding :  Request failed: javax.xml.stream.FactoryConfigurationError: Provider com.ctc.wstx.stax.WstxInputFactory not found
-    implementation("com.fasterxml.woodstox:woodstox-core:6.5.0")
 
     testImplementation("io.quarkus:quarkus-jacoco")
     testImplementation("io.quarkus:quarkus-junit5")
