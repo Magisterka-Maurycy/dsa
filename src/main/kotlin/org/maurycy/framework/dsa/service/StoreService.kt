@@ -52,7 +52,7 @@ class StoreService(
         if (files.isEmpty()) {
             throw NoFileSentException()
         }
-        return storeFile(files[0])
+        return storeFile(files[0], aFormData.tags)
     }
 
     fun findFile(aFileName: String): GetObjectResponse {
@@ -72,7 +72,7 @@ class StoreService(
     }
 
 
-    private fun storeFile(aFileUpload: FileUpload): String {
+    private fun storeFile(aFileUpload: FileUpload, aTags: List<String>): String {
         val inputStream = FileInputStream(aFileUpload.filePath().toString())
         val baos = ByteArrayOutputStream()
         inputStream.transferTo(baos)
@@ -102,6 +102,7 @@ class StoreService(
         storedContent.name = response.`object`()
         storedContent.bucket = response.bucket()
         storedContent.etag = response.etag()
+        storedContent.tags = aTags
         request.setJsonEntity(JsonObject.mapFrom(storedContent).toString())
         elasticSearchClient.performRequest(request)
         cloneForMinio.close()
@@ -119,17 +120,17 @@ class StoreService(
         return map
     }
 
-    private val listOfIndex = listOf("content", "bucket", "etag", "name", "metaData")
-    fun searchFull(aInput: String?): List<String> {
-        val set = mutableSetOf<String>()
-        val searchParam: String = aInput ?: "*"
-        set.addAll(search(listOfIndex, searchParam))
+    private val listOfIndex = listOf("content", "bucket", "etag", "name", "metaData", "tags")
+    fun searchFull(aInput: String): List<String> {
+        return search(listOfIndex, aInput)
+    }
 
-        return set.toList()
+    private fun search(aTerms: List<String>, aMatch: String): List<String> {
+        return  search(aTerms, aMatch, false)
     }
 
     @Throws(IOException::class)
-    private fun search(aTerms: List<String>, aMatch: String): List<String> {
+    private fun search(aTerms: List<String>, aMatch: String, aStrong: Boolean): List<String> {
         val request = Request(
             "GET",
             "/minio/_search"
@@ -143,7 +144,11 @@ class StoreService(
          * Query based on:  <a href="URL#https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html">link</a>
          **/
         val queryString = JsonObject().put("fields", terms)
-        queryString.put("query", "*$aMatch*")
+        if(aStrong) {
+            queryString.put("query", aMatch)
+        }else{
+            queryString.put("query", "*$aMatch*")
+        }
         val matchJson = JsonObject().put("query_string", queryString)
         val queryJson = JsonObject().put("query", matchJson)
         Log.info("query json: ${queryJson.encodePrettily()}")
@@ -171,7 +176,7 @@ class StoreService(
 
         return results.map {
             it.name
-        }.stream().toList()
+        }.stream().toList().toSet().toList()
     }
 
     private fun parseInputStream(aInputStream: InputStream): TikaContent {
@@ -195,5 +200,18 @@ class StoreService(
         Log.info(res.toString())
         return ""
     }
+
+    fun searchAll(): List<String> {
+        return searchFull("*")
+    }
+
+    fun searchByTag(aTag: String): List<String> {
+        val set = mutableSetOf<String>()
+        val searchParam: String = aTag
+        set.addAll(search(listOf("tags"), searchParam, true))
+
+        return set.toList()
+    }
+
 
 }

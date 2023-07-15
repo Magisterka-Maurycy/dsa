@@ -5,6 +5,7 @@ import jakarta.annotation.security.RolesAllowed
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.GET
+import jakarta.ws.rs.NotAcceptableException
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
@@ -50,7 +51,19 @@ class StoreResource(
 
     @GET
     @RolesAllowed("user", "admin")
-    fun getQuery(@RestQuery search: String?) = storeService.searchFull(search)
+    fun getQuery(@RestQuery search: String?, @RestQuery tag: String?): List<String> {
+        if (search != null && tag != null) {
+            //TODO: currently there is no full text search with tag compatibility
+            throw NotAcceptableException()
+        }
+        if (search != null) {
+            return storeService.searchFull(search)
+        }
+        if (tag != null) {
+            return storeService.searchByTag(tag)
+        }
+        return storeService.searchAll()
+    }
 
     @DELETE
     @Path("{name}")

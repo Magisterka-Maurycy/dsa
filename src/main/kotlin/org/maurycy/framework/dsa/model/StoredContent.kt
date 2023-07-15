@@ -7,4 +7,5 @@ class StoredContent {
     lateinit var name: String
     lateinit var etag: String
     lateinit var content: String
+    lateinit var tags: List<String>
 }
