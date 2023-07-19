@@ -26,6 +26,7 @@ dependencies {
 
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:quarkus-camel-bom:${quarkusPlatformVersion}"))
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
+    implementation("io.quarkus:quarkus-kubernetes-config")
     implementation("io.quarkus:quarkus-awt")
     implementation("io.quarkus:quarkus-oidc")
     implementation("io.quarkus:quarkus-mutiny")
