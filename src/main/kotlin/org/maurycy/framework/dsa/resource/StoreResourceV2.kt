@@ -19,27 +19,29 @@ import org.jboss.resteasy.reactive.RestResponse
 import org.maurycy.framework.dsa.model.FormData
 import org.maurycy.framework.dsa.service.StoreService
 
-@Path("store")
-class StoreResource(
+@Path("v2/store")
+
+class StoreResourceV2(
     private val storeService: StoreService,
 ) {
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("user", "admin")
-    suspend fun uploadFile(aFormData: FormData, @Context uriInfo: UriInfo): RestResponse<String> {
-        val answer = storeService.storeFiles(aFormData = aFormData)
+    @Path("{bucket}")
+    suspend fun uploadFile(@PathParam("bucket") aBucket: String, aFormData: FormData, @Context uriInfo: UriInfo): RestResponse<String> {
+        val answer = storeService.storeFiles(aBucket= aBucket, aFormData = aFormData)
         return RestResponse.ResponseBuilder
             .created<String>(uriInfo.absolutePathBuilder.path(answer).build()).build()
     }
 
     @GET
-    @Path("{name}")
+    @Path("{bucket}/{name}")
     @Produces(MediaType.TEXT_PLAIN)
     @Blocking
     @RolesAllowed("user", "admin")
-    fun downloadFile(@PathParam("name") aName: String): Response {
-        val e = storeService.findFile(aFileName = aName)
+    fun downloadFile(@PathParam("bucket") aBucket: String, @PathParam("name") aName: String): Response {
+        val e = storeService.findFile(aBucket= aBucket,aFileName = aName)
         return Response.ok(
             e.readAllBytes()
         )
@@ -51,24 +53,25 @@ class StoreResource(
 
     @GET
     @RolesAllowed("user", "admin")
-    fun getQuery(@RestQuery search: String?, @RestQuery tag: String?): List<String> {
+    @Path("{bucket}")
+    fun getQuery(@PathParam("bucket") aBucket: String, @RestQuery search: String?, @RestQuery tag: String?): List<String> {
         if (search != null && tag != null) {
             //TODO: currently there is no full text search with tag compatibility
             throw NotAcceptableException()
         }
         if (search != null) {
-            return storeService.searchFull(aInput = search)
+            return storeService.searchFull(aBucket = aBucket, aInput = search)
         }
         if (tag != null) {
-            return storeService.searchByTag(aTag = tag)
+            return storeService.searchByTag(aBucket = aBucket, aTag = tag)
         }
         return storeService.searchAll()
     }
 
     @DELETE
-    @Path("{name}")
+    @Path("{bucket}/{name}")
     @RolesAllowed("user", "admin")
-    fun deleteFile(@PathParam("name") aName: String): Response {
+    fun deleteFile(@PathParam("bucket") aBucket: String, @PathParam("name") aName: String): Response {
         storeService.deleteFile(aFileName = aName)
         return Response.noContent().build()
     }

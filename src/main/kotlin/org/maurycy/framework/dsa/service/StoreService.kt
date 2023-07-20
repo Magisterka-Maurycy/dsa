@@ -42,9 +42,9 @@ class StoreService(
     private val bucketName: String
 ) {
 
-
-    fun storeFiles(aFormData: FormData): String {
-        createBucket()
+    fun storeFiles(aFormData: FormData) = storeFiles(bucketName, aFormData)
+    fun storeFiles(aBucket: String, aFormData: FormData): String {
+        createBucket(aBucket)
         val files = aFormData.files
         if (files.size > 1) {
             throw TooManyFilesSentException()
@@ -52,27 +52,27 @@ class StoreService(
         if (files.isEmpty()) {
             throw NoFileSentException()
         }
-        return storeFile(files[0], aFormData.tags)
+        return storeFile(aBucket, files[0], aFormData.tags)
     }
 
-    fun findFile(aFileName: String): GetObjectResponse {
+    fun findFile(aFileName: String) = findFile(bucketName, aFileName)
+    fun findFile(aBucket: String, aFileName: String): GetObjectResponse {
         return minio.getObject(
             GetObjectArgs.builder()
-                .bucket(bucketName)
+                .bucket(aBucket)
                 .`object`(aFileName)
                 .build()
         )
     }
 
-    private fun createBucket() {
-        if (minio.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {
+    private fun createBucket(aBucket: String) {
+        if (minio.bucketExists(BucketExistsArgs.builder().bucket(aBucket).build())) {
             return
         }
-        minio.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build())
+        minio.makeBucket(MakeBucketArgs.builder().bucket(aBucket).build())
     }
 
-
-    private fun storeFile(aFileUpload: FileUpload, aTags: List<String>): String {
+    private fun storeFile(aBucket: String, aFileUpload: FileUpload, aTags: List<String>): String {
         val inputStream = FileInputStream(aFileUpload.filePath().toString())
         val baos = ByteArrayOutputStream()
         inputStream.transferTo(baos)
@@ -82,7 +82,7 @@ class StoreService(
 
         val response = minio.putObject(
             PutObjectArgs.builder()
-                .bucket(bucketName)
+                .bucket(aBucket)
                 .stream(cloneForMinio, aFileUpload.size(), -1)
                 .contentType(aFileUpload.contentType())
                 .`object`(aFileUpload.fileName())
@@ -92,7 +92,7 @@ class StoreService(
 
         val request = Request(
             "PUT",
-            "/minio/_doc/$id"
+            "/minio$aBucket/_doc/$id"
         )
         val storedContent = StoredContent()
         val parsed = parseInputStream(cloneForIndexing)
@@ -121,19 +121,20 @@ class StoreService(
     }
 
     private val listOfIndex = listOf("content", "bucket", "etag", "name", "metaData", "tags")
-    fun searchFull(aInput: String): List<String> {
-        return search(listOfIndex, aInput)
+    fun searchFull(aInput: String) = searchFull(bucketName, aInput)
+    fun searchFull(aBucket: String, aInput: String): List<String> {
+        return search(aBucket, listOfIndex, aInput)
     }
 
-    private fun search(aTerms: List<String>, aMatch: String): List<String> {
-        return  search(aTerms, aMatch, false)
+    private fun search(aBucket: String, aTerms: List<String>, aMatch: String): List<String> {
+        return search(aBucket, aTerms, aMatch, false)
     }
 
     @Throws(IOException::class)
-    private fun search(aTerms: List<String>, aMatch: String, aStrong: Boolean): List<String> {
+    private fun search(aBucket: String, aTerms: List<String>, aMatch: String, aStrong: Boolean): List<String> {
         val request = Request(
             "GET",
-            "/minio/_search"
+            "/minio$aBucket/_search"
         )
         val terms = JsonArray()
         aTerms.forEach {
@@ -144,9 +145,9 @@ class StoreService(
          * Query based on:  <a href="URL#https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html">link</a>
          **/
         val queryString = JsonObject().put("fields", terms)
-        if(aStrong) {
+        if (aStrong) {
             queryString.put("query", aMatch)
-        }else{
+        } else {
             queryString.put("query", "*$aMatch*")
         }
         val matchJson = JsonObject().put("query_string", queryString)
@@ -183,17 +184,18 @@ class StoreService(
         return tikaParser.parse(aInputStream)
     }
 
-    fun deleteFile(aFileName: String): String {
-        val id = "$bucketName-$aFileName"
+    fun deleteFile(aFileName: String) = deleteFile(bucketName, aFileName)
+    fun deleteFile(aBucket: String, aFileName: String): String {
+        val id = "$aBucket-$aFileName"
         minio.removeObject(
             RemoveObjectArgs.builder()
-                .bucket(bucketName)
+                .bucket(aBucket)
                 .`object`(aFileName)
                 .build()
         )
         val request = Request(
             "DELETE",
-            "/minio/_doc/$id"
+            "/minio$aBucket/_doc/$id"
         )
         val res = elasticSearchClient.performRequest(request)
         Log.info(res)
@@ -201,15 +203,17 @@ class StoreService(
         return ""
     }
 
-    fun searchAll(): List<String> {
-        return searchFull("*")
+    fun searchAll() = searchAll(bucketName)
+    fun searchAll(aBucket: String): List<String> {
+        return searchFull(aBucket, "*")
     }
 
-    fun searchByTag(aTag: String): List<String> {
+    fun searchByTag(aTag: String) = searchByTag(bucketName, aTag)
+
+    fun searchByTag(aBucket: String, aTag: String): List<String> {
         val set = mutableSetOf<String>()
         val searchParam: String = aTag
-        set.addAll(search(listOf("tags"), searchParam, true))
-
+        set.addAll(search(aBucket, listOf("tags"), searchParam, true))
         return set.toList()
     }
 
