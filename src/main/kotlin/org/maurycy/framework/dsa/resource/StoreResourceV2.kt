@@ -65,14 +65,14 @@ class StoreResourceV2(
         if (tag != null) {
             return storeService.searchByTag(aBucket = aBucket, aTag = tag)
         }
-        return storeService.searchAll()
+        return storeService.searchAll(aBucket = aBucket)
     }
 
     @DELETE
     @Path("{bucket}/{name}")
     @RolesAllowed("user", "admin")
     fun deleteFile(@PathParam("bucket") aBucket: String, @PathParam("name") aName: String): Response {
-        storeService.deleteFile(aFileName = aName)
+        storeService.deleteFile(aBucket = aBucket, aFileName = aName)
         return Response.noContent().build()
     }
 
