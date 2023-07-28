@@ -217,5 +217,11 @@ class StoreService(
         return set.toList()
     }
 
+    fun getAllBuckets(): List<String> {
+        return minio.listBuckets().map {
+            it.name()
+        }
+    }
+
 
 }

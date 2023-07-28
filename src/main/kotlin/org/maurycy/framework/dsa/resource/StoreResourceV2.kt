@@ -24,6 +24,14 @@ import org.maurycy.framework.dsa.service.StoreService
 class StoreResourceV2(
     private val storeService: StoreService,
 ) {
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("admin")
+    fun getAllBuckets(): List<String> {
+        return storeService.getAllBuckets()
+    }
+
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
